@@ -11,6 +11,10 @@ spec:
     repoURL: https://github.com/alfredocoj/argocd-umbrella-chart.git
     path: charts/argo-cd
     targetRevision: HEAD
+    helm:
+      values: |
+        crds:
+          keep: false
   destination:
     server: https://kubernetes.default.svc
     namespace: default
