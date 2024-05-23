@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: root-app
+  namespace: default
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -15,4 +16,7 @@ spec:
     namespace: default
   syncPolicy:
     automated:
+      prune: true
       selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
