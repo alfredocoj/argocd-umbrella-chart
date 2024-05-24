@@ -4,7 +4,8 @@ argo-cd:
   notifications:
     enabled: false
   applicationSet:
-    enabled: false
+    enabled: true
+    allowAnyNamespace: true
   server:
     extraArgs:
       - --insecure
