@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kubecost
+  namespace: argo-cd
+spec:
+  generators:
+    - clusters: {} # Automatically use all clusters defined within Argo CD~
+  template:
+    metadata:
+      name: 'kubecost'
+    spec:
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: kubecost
+      project: default
+      source:
+        chart: cost-analyzer
+        helm:
+          values: |
+            global:
+              platforms:
+                cicd:
+                  enabled: true
+                  skipSanityChecks: true
+            kubecostToken: "YWxmcmVkby5qdW5pb3JAZ3J1cG9tYXRldXMuY29txm343yadf98"
+              nodeExporter:
+                enabled: false
+            kubecostModel:
+              etlAssetReconciliationEnabled: true
+              etlCloudUsage: true
+              etlCloudRefreshRateHours: 6
+              etlCloudQueryWindowDays: 7
+              etlCloudRunWindowDays: 3
+            networkCosts:
+              enabled: true
+        repoURL: https://kubecost.github.io/cost-analyzer/
+        targetRevision: 2.2.5
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
