@@ -23,7 +23,6 @@ spec:
                 cicd:
                   enabled: true
                   skipSanityChecks: true
-            kubecostToken: "YWxmcmVkby5qdW5pb3JAZ3J1cG9tYXRldXMuY29txm343yadf98"
             nodeExporter:
               enabled: false
             kubecostModel:
