@@ -15,6 +15,47 @@ spec:
       values: |
         pushgateway:
           enabled: false
+        additionalPrometheusRulesMap: 
+          rule-name:
+            groups:
+            - name: Temporal
+              rules:
+              - alert: VeleroBackupPartialFailures
+                annotations:
+                  message: Velero backup {{ $labels.schedule }} has {{ $value | humanizePercentage }} partialy failed backups.
+                expr: |-
+                  velero_backup_partial_failure_total{schedule!=""} / velero_backup_attempt_total{schedule!=""} > 0.25
+                for: 15m
+                labels:
+                  severity: warning
+              - alert: VeleroBackupFailures
+                annotations:
+                  message: Velero backup {{ $labels.schedule }} has {{ $value | humanizePercentage }} failed backups.
+                expr: |-
+                  velero_backup_failure_total{schedule!=""} / velero_backup_attempt_total{schedule!=""} > 0.25
+                for: 15m
+                labels:
+                  severity: warning
+        alertmanager:
+          config:
+            global:
+              resolve_timeout: 5m  
+            route:
+              group_by: ['namespace']
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 12h
+              receiver: 'velero-receiver'
+              routes:
+              - receiver: 'velero-receiver'
+                matchers:
+                  - alertname = "VeleroBackupPartialFailures"
+                  - alertname = "VeleroBackupFailures"
+            receivers:
+            - name: 'velero-receiver'
+              webhook_configs:
+              - url: 'XXXXXX'
+                send_resolved: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitor
