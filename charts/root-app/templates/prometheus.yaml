@@ -9,18 +9,18 @@ spec:
   project: default
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: 60.1.0
+    chart: prometheus-community
+    targetRevision: 25.0.0
     helm:
       values: |
         pushgateway:
           enabled: false
         crds:
           enabled: true
-        prometheusOperator:
-          enabled: true
-          admissionWebhooks:
-            enabled: false
+        #prometheusOperator:
+        #  enabled: true
+        #  admissionWebhooks:
+        #    enabled: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitor
