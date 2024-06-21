@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/prometheus-community/helm-charts.git
     chart: charts/kube-prometheus-stack/crds/
-    targetRevision: kube-prometheus-stack-31.0.0
+    targetRevision: "kube-prometheus-stack-31.0.0"
     directory:
       recurse: true
     syncOptions:
