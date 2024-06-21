@@ -17,6 +17,10 @@ spec:
           enabled: false
         crds:
           enabled: true
+        prometheusOperator:
+          enabled: true
+          admissionWebhooks:
+            enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: monitor
