@@ -8,19 +8,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/prometheus-community/helm-charts.git
-    chart: charts/kube-prometheus-stack/crds/
-    targetRevision: 60.3.0
-    directory:
-      recurse: true
-    syncOptions:
-    - Replace=true
-    helm:
-      values: |
-        pushgateway:
-          enabled: false
-        crds:
-          enabled: true
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-operator-crds
+    targetRevision: 6.0.0
   destination:
     server: https://kubernetes.default.svc
     namespace: monitor
