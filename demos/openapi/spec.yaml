@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: Todos Demo API
+  version: '1.0.0'
+paths:
+  /todos:
+    get:
+      summary: List todos
+      responses:
+        '200':
+          description: A list of todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+    post:
+      summary: Create todo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTodo'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        done:
+          type: boolean
+      required: [id, title, done]
+    NewTodo:
+      type: object
+      properties:
+        title:
+          type: string
+      required: [title]

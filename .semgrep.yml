@@ -1,0 +1,14 @@
+rules:
+  - id: python-eval-detected
+    message: Avoid use of `eval` — can lead to remote code execution
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern: eval(...)
+
+  - id: hardcoded-password
+    message: Hardcoded password detected
+    languages: [python]
+    severity: WARNING
+    patterns:
+      - pattern: password = "..."
