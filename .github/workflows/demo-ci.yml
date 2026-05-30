@@ -32,7 +32,7 @@ jobs:
           config: .semgrep.yml
   
   build-and-push:
-    if: sempregrep.outcome == 'success'
+    if: semgrep.outcome == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
