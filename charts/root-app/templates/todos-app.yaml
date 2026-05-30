@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/alfredocoj/argocd-umbrella-chart
     path: demos/k8s
-    targetRevision: feature/demos-devops
+    targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc
     namespace: default
