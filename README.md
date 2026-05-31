@@ -53,19 +53,19 @@ $ helm install argo-cd charts/argo-cd/ --namespace argo-cd
 ## Accessing the Web UI
 
 ```
-$ kubectl port-forward svc/argo-cd-argocd-server 8080:443
+$ kubectl port-forward svc/argo-cd-argocd-server 8080:443 --namespace argo-cd
 ```
 
 We can then visit http://localhost:8080 to access it, which will show as a login form. The default username is admin. The password is auto-generated, we can get it with:
 
 ```
-$ kubectl get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+$ kubectl get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"  -n argo-cd | base64 -d
 ```
 
 ## Creating the root-app Helm chart
 
 ```
-helm template root-app/ | kubectl apply -f -
+helm template charts/root-app/ | kubectl apply -f -
 ```
 
 As a last step, we can remove the Secret that Helm creates for each manual chart installation:
