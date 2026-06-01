@@ -18,7 +18,7 @@ jobs:
           pip install -r demos/openapi/requirements.txt
           pip install -r demos/openapi/requirements-dev.txt
       - name: Run pip audit
-        run: pip audit --desc
+        run: pip-audit --desc
       - name: Check Python formatting with Ruff
         run: ruff format --config demos/openapi/pyproject.toml --check demos/openapi
       - name: Lint with Ruff
