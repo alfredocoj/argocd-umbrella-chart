@@ -1,14 +1,194 @@
 rules:
+  # === CRITICAL: Remote Code Execution ===
   - id: python-eval-detected
-    message: Avoid use of `eval` — can lead to remote code execution
+    message: Avoid use of `eval()` — can lead to remote code execution (RCE)
     languages: [python]
     severity: ERROR
     patterns:
       - pattern: eval(...)
+      - pattern: exec(...)
 
+  # === CRITICAL: SQL Injection ===
+  - id: sql-injection-string-concat
+    message: SQL query concatenation detected — use parameterized queries instead
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              "... " + $VAR + " ..."
+          - pattern: |
+              "...".format(...)
+          - pattern: |
+              "...".replace(...)
+      - pattern-inside: |
+          SELECT * FROM ...
+      - pattern-inside: |
+              DELETE FROM ...
+      - pattern-inside: |
+              UPDATE ... SET ...
+      - pattern-inside: |
+              INSERT INTO ...
+
+  - id: sql-injection-f-string
+    message: SQL with f-strings is vulnerable to injection — use parameterized queries
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern: |
+          f"SELECT ... {$VAR} ..."
+      - pattern: |
+          f"DELETE FROM ... {$VAR} ..."
+      - pattern: |
+          f"UPDATE ... {$VAR} ..."
+      - pattern: |
+          f"INSERT INTO ... {$VAR} ..."
+
+  # === CRITICAL: Command Injection ===
+  - id: command-injection-os-system
+    message: Use of os.system() is vulnerable to command injection — use subprocess.run() with list args
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: os.system(...)
+          - pattern: subprocess.call(...)
+          - pattern: subprocess.Popen(...)
+
+  - id: command-injection-shell-true
+    message: shell=True enables command injection — use shell=False and pass args as list
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern: subprocess.run(..., shell=True, ...)
+      - pattern: subprocess.Popen(..., shell=True, ...)
+
+  # === HIGH: Hardcoded Secrets ===
   - id: hardcoded-password
-    message: Hardcoded password detected
+    message: Hardcoded password detected — use environment variables instead
     languages: [python]
     severity: WARNING
     patterns:
-      - pattern: password = "..."
+      - pattern-either:
+          - pattern: password = "..."
+          - pattern: PASSWORD = "..."
+          - pattern: pwd = "..."
+          - pattern: passwd = "..."
+
+  - id: hardcoded-api-key
+    message: Hardcoded API key detected — use environment variables or secret management
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: api_key = "sk_..."
+          - pattern: API_KEY = "sk_..."
+          - pattern: apikey = "..."
+          - pattern: secret = "..."
+          - pattern: token = "ghp_..."
+          - pattern: TOKEN = "ghp_..."
+
+  - id: hardcoded-database-url
+    message: Hardcoded database credentials detected
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: database_url = "postgresql://user:pass@..."
+          - pattern: DATABASE_URL = "postgresql://user:pass@..."
+          - pattern: db_url = "mysql://user:pass@..."
+          - pattern: connection_string = "..."
+
+  # === HIGH: Insecure Random ===
+  - id: insecure-random-for-security
+    message: random.random() is not cryptographically secure — use secrets module
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          import random
+          ...
+      - pattern-either:
+          - pattern: random.random()
+          - pattern: random.randint(...)
+          - pattern: random.choice(...)
+
+  # === MEDIUM: Disabled Security Headers ===
+  - id: missing-csrf-protection
+    message: CSRF protection not enabled — add CSRF token validation
+    languages: [python]
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @app.route(...)
+              def $FUNC(...):
+                  ...
+          - pattern: |
+              flask.request.form[...]
+
+  - id: insecure-deserialization
+    message: Using pickle.loads() with untrusted data is unsafe — use JSON instead
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern: pickle.loads(...)
+      - pattern: pickle.load(...)
+
+  # === MEDIUM: Kubernetes Misconfigurations ===
+  - id: k8s-missing-resource-limits
+    message: Kubernetes pod missing resource limits — could allow resource exhaustion attacks
+    languages: [yaml]
+    severity: WARNING
+    patterns:
+      - pattern-inside: |
+          containers:
+            - ...
+      - pattern-not: |
+          resources:
+            limits:
+              memory: ...
+
+  - id: k8s-missing-readiness-probe
+    message: Kubernetes deployment missing readiness probe — could serve traffic before ready
+    languages: [yaml]
+    severity: WARNING
+    patterns:
+      - pattern-inside: |
+          kind: Deployment
+          ...
+      - pattern-not: |
+          readinessProbe:
+            ...
+
+  - id: k8s-container-privileged
+    message: Kubernetes container running as privileged — reduces isolation and security
+    languages: [yaml]
+    severity: ERROR
+    patterns:
+      - pattern: |
+          securityContext:
+            privileged: true
+
+  - id: k8s-root-user
+    message: Kubernetes container running as root — use runAsNonRoot
+    languages: [yaml]
+    severity: WARNING
+    patterns:
+      - pattern-inside: |
+          securityContext:
+            ...
+      - pattern-not: |
+          runAsNonRoot: true
+
+  # === LOW: Code Quality ===
+  - id: empty-except-block
+    message: Empty except block hides errors — log or re-raise the exception
+    languages: [python]
+    severity: WARNING
+    patterns:
+      - pattern: |
+          try:
+              ...
+          except:
+              pass
