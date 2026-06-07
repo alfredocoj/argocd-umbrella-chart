@@ -1,0 +1,120 @@
+# Semgrep config for demos/openapi/
+# This configuration applies security scanning only to the OpenAPI demo codebase
+
+rules:
+  # === CRITICAL: Remote Code Execution ===
+  - id: python-eval-detected
+    message: Avoid use of `eval()` — can lead to remote code execution (RCE)
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: eval(...)
+          - pattern: exec(...)
+
+  # === CRITICAL: SQL Injection ===
+  - id: sql-injection-concat
+    message: SQL query concatenation detected — use parameterized queries instead
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: '"SELECT ..." + ...'
+          - pattern: '"DELETE ..." + ...'
+          - pattern: '"UPDATE ..." + ...'
+          - pattern: '"INSERT ..." + ...'
+
+  - id: sql-injection-format
+    message: SQL with .format() is vulnerable to injection — use parameterized queries
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: '"SELECT ...".format(...)'
+          - pattern: '"DELETE ...".format(...)'
+          - pattern: '"UPDATE ...".format(...)'
+          - pattern: '"INSERT ...".format(...)'
+
+  - id: sql-injection-f-string
+    message: SQL with f-strings is vulnerable to injection — use parameterized queries
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: 'f"SELECT ... {$VAR} ..."'
+          - pattern: 'f"DELETE ... {$VAR} ..."'
+          - pattern: 'f"UPDATE ... {$VAR} ..."'
+          - pattern: 'f"INSERT ... {$VAR} ..."'
+
+  # === CRITICAL: Command Injection ===
+  - id: command-injection-os-system
+    message: Use of os.system() is vulnerable to command injection — use subprocess.run() with list args
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: os.system(...)
+          - pattern: subprocess.call(...)
+
+  - id: command-injection-popen
+    message: subprocess.Popen() with string args or shell=True enables command injection
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.Popen(..., shell=True)
+          - pattern: subprocess.run(..., shell=True)
+
+  # === HIGH: Hardcoded Secrets ===
+  - id: hardcoded-api-key
+    message: Hardcoded API key detected — use environment variables or secret management
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: $VAR = "sk_..."
+          - pattern: $VAR = "ghp_..."
+          - pattern: $VAR = "github_pat_..."
+
+  - id: hardcoded-database-url
+    message: Hardcoded database credentials detected
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: $VAR = "postgresql://..."
+          - pattern: $VAR = "mysql://..."
+          - pattern: $VAR = "mongodb://..."
+
+  # === HIGH: Insecure Random ===
+  - id: insecure-random-for-security
+    message: random module is not cryptographically secure — use secrets module
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: random.random()
+          - pattern: random.randint(...)
+          - pattern: random.choice(...)
+
+  # === MEDIUM: Insecure Deserialization ===
+  - id: insecure-deserialization
+    message: Using pickle.loads() with untrusted data is unsafe — use JSON instead
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: pickle.loads(...)
+          - pattern: pickle.load(...)
+
+  # === LOW: Code Quality ===
+  - id: empty-except-block
+    message: Empty except block hides errors — log or re-raise the exception
+    languages: [python]
+    severity: WARNING
+    patterns:
+      - pattern: |
+          try:
+              ...
+          except:
+              pass

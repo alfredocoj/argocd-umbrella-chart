@@ -37,7 +37,7 @@ jobs:
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
-          config: .semgrep.yml
+          config: demos/openapi/.semgrep.yml
   
   build-and-push:
     needs: semgrep
