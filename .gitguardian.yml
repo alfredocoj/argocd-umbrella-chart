@@ -1,0 +1,4 @@
+paths:
+  ignore:
+    - README.md
+    - demos/openapi/README.md
