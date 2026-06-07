@@ -260,7 +260,7 @@ import os
 app = Flask(__name__)
 
 # ❌ VULNERABILITY 1: Hardcoded API key
-API_KEY = "sk_live_1234567890abcdefghijk"
+API_KEY = "sk_live_####"
 
 # ❌ VULNERABILITY 2: SQL injection via string concatenation
 @app.route('/user/<user_id>', methods=['GET'])
@@ -304,7 +304,7 @@ cat demos/openapi/app_vulnerable.py
 
 **Expected output:**
 ```python
-API_KEY = "sk_live_1234567890abcdefghijk"
+API_KEY = "sk_live_####"
 query = f"SELECT * FROM users WHERE id = {user_id}"
 os.system(command)
 eval(expr)
@@ -381,15 +381,15 @@ Create a file with embedded secrets:
 ```bash
 cat > demos/openapi/config_bad.py << 'EOF'
 # Database configuration
-DATABASE_URL = "postgresql://admin:P@ssw0rd123@db.prod.aws.com/myapp"
-DB_PASS = "MySecret123"
-API_KEY = "sk_live_abc123def456"
-SECRET_TOKEN = "ghp_1234567890abcdefghijklmnopqrstuvwx"
+DATABASE_URL = "postgresql://admin:####@db.prod.aws.com/myapp"
+DB_PASS = "####"
+API_KEY = "sk_live_####"
+SECRET_TOKEN = "ghp_####"
 
 # These would all be detected
 STRIPE_KEY = "sk_live_..."
 GITHUB_TOKEN = "ghp_..."
-PASSWORD = "hardcoded_password"
+PASSWORD = "####"
 EOF
 
 # Run detect-secrets
@@ -522,7 +522,7 @@ Let's fix the hardcoded secret first:
 
 **BEFORE (vulnerable):**
 ```python
-API_KEY = "sk_live_1234567890abcdefghijk"
+API_KEY = "sk_live_####"
 ```
 
 **AFTER (fixed):**
