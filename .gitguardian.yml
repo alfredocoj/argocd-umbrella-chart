@@ -1,4 +1,8 @@
-paths:
-  ignore:
+# GitGuardian configuration file
+# Examples: https://github.com/GitGuardian/ggshield/blob/main/.gitguardian.example.yml
+
+secret:
+  # Exclude files and paths by globbing
+  ignored_paths:
     - README.md
     - demos/openapi/README.md
